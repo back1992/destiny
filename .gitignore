@@ -99,3 +99,14 @@ ENV/
 .ropeproject
 destiny/sm2.py
 
+.idea/dataSources.local.xml
+.idea/dataSources/7da3f03e-5906-49b0-982a-ab095d19d4c1/_src_/
+.idea/dataSources/7da3f03e-5906-49b0-982a-ab095d19d4c1/_staging_/
+.idea/vcs.xml
+.idea/workspace.xml
+destiny/__pycache__/
+destiny/spiders/__pycache__/
+myweb/__pycache__/
+myweb/myapp/__pycache__/
+myweb/myapp/migrations/__pycache__/
+myweb/myweb/__pycache__/
