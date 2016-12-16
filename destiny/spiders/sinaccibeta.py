@@ -93,11 +93,7 @@ class SinaccibetaSpider(scrapy.Spider):
         df = pd.DataFrame(
             {'date': df[0], 'open': df[1].astype(float), 'high': df[2].astype(float), 'low': df[3].astype(float),
              'close': df[4].astype(float), 'volume': df[5]})
-        # df['res'] = df['close'] - df['open']
-        # df_new = df['res']
-        # df_new.index = df['res'].index - 1
-        # df['resnew'] = df_new
-        # df['resnew'].iloc[-1] = 0
+
 
         df['res'] = df['close'] - df['close'].shift()
         df['resnew'] = df['res'].shift(-1)
