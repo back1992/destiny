@@ -6,7 +6,7 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from django.db.models import F
 from django.db.models import Max
-from destiny.sm import sm
+from destiny.sm2 import sm
 
 import slackweb
 import re

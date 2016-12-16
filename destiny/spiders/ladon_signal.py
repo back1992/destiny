@@ -7,7 +7,7 @@ from django.db.models import F
 from destiny.items import *
 from myapp.models import Codeset, Price, Position, Ladon
 from django.db.models import Sum
-from destiny.sm import sm
+from destiny.sm2 import sm
 
 
 class LadonSignalSpider(scrapy.Spider):

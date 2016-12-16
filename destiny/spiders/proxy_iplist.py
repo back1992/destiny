@@ -2,7 +2,7 @@
 
 import scrapy
 from destiny.items import *
-from destiny.sm import sm
+from destiny.sm2 import sm
 
 receiver = '13261871395@163.com'
 
