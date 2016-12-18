@@ -14,9 +14,6 @@ from scrapy.utils.project import get_project_settings
 from myapp.models import Codeset, Price, Position
 
 settings = get_project_settings()
-receiver = '13261871395@163.com'
-# receiver = ['280037713@qq.com', '13261871395@163.com']
-
 slack = slackweb.Slack(url="https://hooks.slack.com/services/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")
 
 TAG_RE = re.compile(r'<[^>]+>')
@@ -81,33 +78,7 @@ class PositionListPipeline(object):
 
 
 
-class InvestingCCIPipeline(object):
-    def __init__(self):
-        self.results = []
-        self.signal_test = ''
-        self.signal_title = ''
 
-    def process_item(self, item, spider):
-        self.signal_title = item['title']
-        self.signal_test += '<h3>' + item['code'] + '</h3>'
-        self.signal_test += '<h4>' + item['time'] + ' : ' + u'  收盘价: ' + str(item['last_close'])
-        if 's60' in item:
-            self.signal_test += u'---60天均价: ' + str(item['mean60']) + '\n'
-        self.signal_test += '</h4>\n'
-        if 's60' in item:
-            self.signal_test += settings.get('SIGNAL')['s60'][item['s60']] + '\n'
-        self.signal_test += settings.get('SIGNAL')['kdj'][item['signalkdj']]
-        if 'signalcci' in item:
-            self.signal_test += settings.get('SIGNAL')['cci'][item['signalcci']]
-
-    def close_spider(self, spider):
-        if self.signal_test:
-            signalslack = remove_tags(self.signal_test)
-            sm(self.signal_title, self.signal_test, receiver, spider.msg_cc)
-            try:
-                slack.notify(text=signalslack, channel=self.results[0]['channel'], username="daniel")
-            except Exception as e:
-                pass
 
 
 

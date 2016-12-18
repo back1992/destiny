@@ -10,35 +10,13 @@ class Codeset(models.Model):
     sina = models.CharField(max_length=200, null=True)
     maincontract = models.CharField(max_length=200, null=True)
     sbreed = models.CharField(max_length=200, unique=True)
-    # sbreed = models.CharField(max_length=200)
-    # market = models.IntegerField()
-    SHANGHAI = '1'
-    DALIAN = '2'
-    ZHENGZHOU = '3'
-    ZHONGJIN = '9'
-    MARKET_IN_CHOICES = (
-        (SHANGHAI, '1'),
-        (DALIAN, '2'),
-        (ZHENGZHOU, '3'),
-        (ZHONGJIN, '9'),
-    )
-    market = models.CharField(max_length=2,
-                              choices=MARKET_IN_CHOICES,
-                              )
-    hassignal = models.BooleanField(default=False)
+    market = models.ForeignKey('Marketurl')
     nighttrade = models.BooleanField(default=True)
-    hold = models.BooleanField(default=False)
     actived = models.BooleanField(default=True)
     pub_date = models.DateTimeField(default=timezone.now)
 
-    # my_order = models.PositiveIntegerField(default=0, blank=False, null=True)
-
-    # class Meta(object):
-    #     ordering = ('my_order',)
-
     def __str__(self):
         return self.codeen
-        # return self.codezh
 
 
 class Quandlset(models.Model):
@@ -58,31 +36,36 @@ class Quandlset(models.Model):
 
 
 class Marketurl(models.Model):
+    SHANGHAI = '1'
+    DALIAN = '2'
+    ZHENGZHOU = '3'
+    ZHONGJIN = '9'
+    AREA_IN_CHOICES = (
+        ('1', 'SHANGHAI'),
+        ('2', 'DALIAN'),
+        ('3', 'ZHENGZHOU'),
+        ('9', 'ZHONGJIN'),
+    )
+    area = models.CharField(max_length=10,
+                            choices=AREA_IN_CHOICES,
+                            )
     market = models.IntegerField()
     daily = models.CharField(max_length=200)
     minute = models.CharField(max_length=200)
     pub_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return str(self.market)
+        return str(self.area)
 
 
 class Signal(models.Model):
     code = models.ForeignKey("Codeset")
-    BUY = '1'
-    NONE = '0'
-    SELL = '-1'
-    ACTION_IN_CHOICES = (
-        (BUY, '1'),
-        (NONE, '0'),
-        (SELL, '-1'),
-    )
-    trade = models.CharField(max_length=2, choices=ACTION_IN_CHOICES, default=0)
-    cci = models.CharField(max_length=2, choices=ACTION_IN_CHOICES, default=0)
-    kdj = models.CharField(max_length=2, choices=ACTION_IN_CHOICES, default=0)
-    macd = models.CharField(max_length=2, choices=ACTION_IN_CHOICES, default=0)
-    strength = models.IntegerField(null=True)
-    pub_date = models.DateTimeField(default=timezone.now)
+    trade = models.IntegerField(default=0)
+    cci = models.IntegerField(default=0)
+    kdj = models.IntegerField(default=0)
+    macd = models.IntegerField(default=0)
+    rsi = models.IntegerField(default=0)
+    pub_date = models.DateField(default=timezone.now)
     objects = DataFrameManager()
 
     def __str__(self):
@@ -113,7 +96,6 @@ class Position(models.Model):
     tradevar = models.IntegerField(default=0)
     sellposition = models.IntegerField(default=0)
     sellvar = models.IntegerField(default=0)
-    # type = models.CharField(max_length=50)
     date = models.DateField(null=True)
     pub_date = models.DateTimeField(default=timezone.now)
     objects = DataFrameManager()
@@ -132,8 +114,22 @@ class Price(models.Model):
     high = models.FloatField(null=True)
     low = models.FloatField(null=True)
     close = models.FloatField(null=True)
+    volume = models.IntegerField(null=True)
+    pub_date = models.DateTimeField(default=timezone.now)
+    objects = DataFrameManager()
+
+    def __str__(self):
+        return str(self.code.codeen)
+
+
+class Price5m(models.Model):
+    code = models.ForeignKey("Codeset")
+    date = models.DateField(null=True)
+    open = models.FloatField(null=True)
+    high = models.FloatField(null=True)
+    low = models.FloatField(null=True)
+    close = models.FloatField(null=True)
     res = models.IntegerField(null=True)
-    resnew = models.IntegerField(null=True)
     volume = models.IntegerField(null=True)
     pub_date = models.DateTimeField(default=timezone.now)
     objects = DataFrameManager()

@@ -100,3 +100,39 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'myweb.settings'
 import django
 
 django.setup()
+
+
+
+SIGNAL = {
+    'cci': {
+        2: '<span style="color:red;"> cci:买多  </span>',
+        -2: '<span style="color:green;"> cci:卖空  </span>',
+        0: '',
+        1: '<span style="color:red;"> cci:买平  </span>',
+        -1: '<span style="color:green;"> cci:卖平  </span>',
+    },
+    'macd': {
+        1: '<span style="color:red;">MACD:buy  </span>',
+        0: '',
+        -1: '<span style="color:green;">MACD:sell  </span>',
+    },
+    'kdj': {
+        1: '<span style="color:red;">KDJ:buy  </span>',
+        0: '',
+        -1: '<span style="color:green;">KDJ:sell  </span>',
+    },
+    's60': {
+        2: u'<p style="background-color:red;">均线信号:买入  </p>',
+        1: u'<p style="background-color:yellow;">均线信号:追高买多  </p>',
+        0: '',
+        -1: u'<p style="background-color:darkcyan;">均线信号:加仓卖空  </p>',
+        -2: u'<p style="background-color:green;">均线信号:卖空  </p>',
+    },
+    'cciq': {
+        2: u'<p style="background-color:red;">CCI信号:买多  </p>',
+        1: u'<p style="background-color:yellow;">CCI信号:买平  </p>',
+        0: '',
+        -1: u'<p style="background-color:darkcyan;">CCI信号:卖平  </p>',
+        -2: u'<p style="background-color:green;">CCI信号:卖空  </p>',
+    },
+}

@@ -46,19 +46,23 @@ make_unnighttrade.short_description = "Mark none night trade"
 
 
 class CodesetAdmin(admin.ModelAdmin):
-    fieldsets = [
-        (None, {'fields': ['codeen']}),
-        (None, {'fields': ['codezh']}),
-        ('交易市场', {'fields': ['market']}),
-        ('新浪代码', {'fields': ['sina']}),
-        ('主力合约', {'fields': ['maincontract']}),
-        ('Date information', {'fields': ['pub_date']}),
-        ('持仓', {'fields': ['hold']}),
-        ('sBreed', {'fields': ['sbreed']}),
-        ('激活', {'fields': ['actived']}),
-        ('夜盘', {'fields': ['nighttrade']}),
-    ]
-    list_display = ['codeen', 'codezh', 'market', 'sina', 'maincontract', 'sbreed', 'hold', 'nighttrade', 'actived']
+    # fieldsets = [
+    #     (None, {'fields': ['codeen']}),
+    #     (None, {'fields': ['codezh']}),
+    #     ('交易市场', {'fields': ['market']}),
+    #     ('新浪代码', {'fields': ['sina']}),
+    #     ('主力合约', {'fields': ['maincontract']}),
+    #     ('Date information', {'fields': ['pub_date']}),
+    #     ('持仓', {'fields': ['hold']}),
+    #     ('sBreed', {'fields': ['sbreed']}),
+    #     ('激活', {'fields': ['actived']}),
+    #     ('夜盘', {'fields': ['nighttrade']}),
+    # ]
+    # list_display = ['codeen', 'codezh', 'market', 'sina', 'maincontract', 'sbreed', 'hold', 'nighttrade', 'actived']
+    list_display = [f.name for f in Codeset._meta.fields if f.name != "id" and f.name != "pub_date"]
+    # list_filter = (
+    #     ('code', admin.RelatedOnlyFieldListFilter),
+    # )
     actions = [make_holded, make_unholded, make_nighttrade, make_unnighttrade]
 
 
@@ -66,7 +70,7 @@ admin.site.register(Codeset, CodesetAdmin)
 
 
 class MarketurlAdmin(admin.ModelAdmin):
-    list_display = ['market', 'daily', 'minute']
+    list_display = [field.name for field in Marketurl._meta.fields if field.name != "id" and field.name != "pub_date"]
 
 
 admin.site.register(Marketurl, MarketurlAdmin)
@@ -74,7 +78,7 @@ admin.site.register(Marketurl, MarketurlAdmin)
 
 class QuandlsetAdmin(admin.ModelAdmin):
     # list_display = ['name', 'namezh', 'symbol', 'exchange', 'actived']
-    list_display = [f.name for f in Quandlset._meta.fields]
+    list_display = [f.name for f in Quandlset._meta.fields if f.name != "id" and f.name != "pub_date"]
     actions = [make_actived, make_unactived]
 
 
@@ -82,7 +86,7 @@ admin.site.register(Quandlset, QuandlsetAdmin)
 
 
 class SignalAdmin(admin.ModelAdmin):
-    list_display = ['code', 'trade', 'cci', 'macd', 'kdj', 'strength']
+    list_display = [f.name for f in Signal._meta.fields if f.name != "id"]
 
 
 admin.site.register(Signal, SignalAdmin)
@@ -96,13 +100,23 @@ admin.site.register(Investingset, InvestingsetAdmin)
 
 
 class PriceAdmin(admin.ModelAdmin):
-    list_display = ['code', 'date', 'open', 'high', 'low', 'close', 'volume', 'res', 'resnew']
+    list_display = [f.name for f in Price._meta.fields if f.name != "id" and f.name != "pub_date"]
     list_filter = (
         ('code', admin.RelatedOnlyFieldListFilter),
     )
 
 
 admin.site.register(Price, PriceAdmin)
+
+
+class Price5mAdmin(admin.ModelAdmin):
+    list_display = [f.name for f in Price5m._meta.fields if f.name != "id" and f.name != "pub_date"]
+    list_filter = (
+        ('code', admin.RelatedOnlyFieldListFilter),
+    )
+
+
+admin.site.register(Price5m, Price5mAdmin)
 
 
 class PriceFreqAdmin(admin.ModelAdmin):
