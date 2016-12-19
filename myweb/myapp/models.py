@@ -61,6 +61,8 @@ class Marketurl(models.Model):
 class Signal(models.Model):
     code = models.ForeignKey("Codeset")
     trade = models.IntegerField(default=0)
+    position = models.IntegerField(default=0)
+    action = models.IntegerField(default=0)
     cci = models.IntegerField(default=0)
     kdj = models.IntegerField(default=0)
     macd = models.IntegerField(default=0)

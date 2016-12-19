@@ -28,7 +28,6 @@ class WholeTraderSpider(scrapy.Spider):
         :param response:
         :type response:
         """
-        # Signal.objects.all().delete()
         date = Position.objects.all().aggregate(Max('date'))['date__max']
         qs = Codeset.objects.filter(actived=True)
         df_signal = pd.DataFrame()
@@ -82,11 +81,8 @@ class WholeTraderSpider(scrapy.Spider):
             signal += '<p>' + row['name_list'] + '</p>'
             # signal += u'<p>持仓强度: ' + str(row['interest']) + '</p>'
             signal += u'<h4>交易强度: ' + str(int(row['var'])) + '</h4>'
-            action_signal = Signal()
-            action_signal.code = Codeset.objects.get(codezh=row['code'])
-            action_signal.name = 2
-            action_signal.trade = 1
-            action_signal.strength = int(row['var'])
+            action_signal, created = Signal.objects.update_or_create(code=Codeset.objects.get(codezh=row['code']))
+            action_signal.trade = row['var']
             action_signal.save()
         return signal
 
@@ -100,11 +96,8 @@ class WholeTraderSpider(scrapy.Spider):
             signal += '<p>' + row['name_list'] + '</p>'
             # signal += u'<p>持仓强度: ' + str(row['interest']) + '</p>'
             signal += u'<h4>交易强度: ' + str(int(row['var'])) + '</h4>'
-            action_signal = Signal()
-            action_signal.code = Codeset.objects.get(codezh=row['code'])
-            action_signal.name = 2
-            action_signal.trade = -1
-            action_signal.strength = int(row['vi'])
-            action_signal.save()
 
+            action_signal, created = Signal.objects.update_or_create(code=Codeset.objects.get(codezh=row['code']))
+            action_signal.trade = row['var']
+            action_signal.save()
         return signal

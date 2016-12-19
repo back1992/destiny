@@ -101,8 +101,6 @@ import django
 
 django.setup()
 
-
-
 SIGNAL = {
     'cci': {
         2: '<span style="color:red;"> cci:买多  </span>',

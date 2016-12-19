@@ -1,48 +1,70 @@
 # -*- coding: utf-8 -*-
+import pandas as pd
+from django.db.models import Q
 from myapp.models import *
 from destiny.items import *
 from scrapy.utils.project import get_project_settings
+from destiny.sm2 import sm
 import talib
+from datetime import datetime, time
+import pytz
+
+tz = pytz.timezone('Asia/Shanghai')
 
 settings = get_project_settings()
 
+df_codes = Signal.objects.filter(~Q(action=0)).to_dataframe(fieldnames=['action'], index='code')
 
-class PriceDailySignalSpider(scrapy.Spider):
-    name = "price_daily_signal"
-    allowed_domains = ["baidu.com"]
+
+class Action5MSpider(scrapy.Spider):
+    name = "action_5m"
+    allowed_domains = ["*"]
+    print(df_codes)
+
+    now = datetime.now(tz)
+    now_time = now.time()
+    print(now_time)
+    if now_time >= time(9, 00) and now_time <= time(11, 30):
+        print('day')
+        open_time = "09:05:00"
+        qs = Codeset.objects.filter(codeen__in=df_codes.index)
+    elif now_time >= time(13, 30) and now_time <= time(15, 00):
+        print('aftenoon')
+        open_time = "13:35:00"
+        qs = Codeset.objects.filter(codeen__in=df_codes.index)
+    else:
+        print('night')
+        qs = Codeset.objects.filter(nighttrade=True, codeen__in=df_codes.index)
+    open_time = "21:05:00"
     start_urls = (
-        'http://www.baidu.com/',
-    )
-
-    def __init__(self, msg_cc='', *args, **kwargs):
-        # self.msg_cc = "280037713@qq.com"
-        self.receiver = "13261871395@163.com"
-        self.msg_cc = ""
-
-        super(scrapy.Spider, self).__init__(*args, **kwargs)
+        'http://stock2.finance.sina.com.cn/futures/api/json.php/%s%s?symbol=%s' % (
+            "IndexService.getInnerFuturesMiniKLine", '5m',
+            code.maincontract)
+        for code in qs)
 
     def parse(self, response):
-        Signal.objects.all().delete()
-        codes = Codeset.objects.filter(actived=True)
-        # codes = Codeset.objects.filter(codeen='A')
-        for code in codes:
-            qs = Price.objects.filter(code=code).order_by('date')
-            df = qs.to_dataframe(index='date')
-            macd = self.get_macd(df)
-            kdj = self.get_kdj(df)
-            rsi = self.get_rsi(df)
-            signal, created = Signal.objects.update_or_create(code=code)
-            signal.macd = sum(macd.values())
-            signal.kdj = sum(kdj.values())
-            signal.rsi = sum(rsi.values())
-            signal.save()
-        signal_msg = self.send_signal()
-        # sm("最新版内盘信号", signal_msg, self.receiver, self.msg_cc)
+        code = response.url.split('=')[-1][:-4]
+        df = pd.read_json(response.url)
+        df = pd.DataFrame(
+            {'date': df[0], 'open': df[1].astype('float'), 'high': df[2].astype('float'), 'low': df[3].astype('float'),
+             'close': df[4].astype('float'), 'volume': df[5]})
+        # df.set_index('date', inplace=True)
+        df = df.set_index('date').sort_index(ascending=[1])
+        macd = self.get_macd(df)
+        kdj = self.get_kdj(df)
+        rsi = self.get_rsi(df)
+        action_signal = {'macd': sum(macd.values()), 'kdj': sum(kdj.values()), 'rsi': sum(rsi.values())}
+        action_signal_sum = sum(action_signal.values())
+        print(code, action_signal_sum)
+        action_direction = df_codes['action'][code]
+        if (action_signal_sum > 10 and action_direction > 0) or (action_signal_sum < -10 and action_direction < 0):
+            self.send_signal(code, action_signal, action_direction)
 
     def get_macd(self, df):
         spur = turn = hist = 0
         dif, dea, macd = talib.MACD(df['close'].values, fastperiod=12, slowperiod=26,
                                     signalperiod=9)
+
         # print(dif, dea, macd)
         #  1. DIFF、DEA均为正，DIFF向上突破DEA，买入信号。 2. DIFF、DEA均为负，DIFF向下跌破DEA，卖出信号。
         # DIF上穿DEA
@@ -164,21 +186,22 @@ class PriceDailySignalSpider(scrapy.Spider):
             spur = -10
         return {'spur': spur, 'spur50': spur50, 'turn': turn, 'over': over}
 
-    def send_signal(self):
-        signal = ''
-        df = Signal.objects.all().to_dataframe()
-        df['signal'] = df['macd'] + df['kdj'] + df['rsi'] + df['cci']
-        df = df[df['signal'] != 0].sort_values(by=['signal'], ascending=[-1])
-        print(df)
-        for index, row in df.iterrows():
-            if row['signal'] <= 0:
-                signal += '<h3 STYLE="color:green;">做空 ' + row['code'] + '强度：' + str(row['signal'])
-                '</h3>'
-            else:
-                signal += '<h3 STYLE="color:red;">做多 ' + row['code'] + '强度：' + str(row['signal'])
-                '</h3>'
-            signal += '<p>' + '  macd:' + str(row['macd']) + '  macd:' + str(row['kdj']) + '  kdj:' + str(
-                row['macd']) + '  rsi:' + str(row[
-                                                  'rsi']) + '  cci:' + \
-                      str(row['cci']) + '</p>'
-        return signal
+    def send_signal(self, codeen, signal, direction):
+        code = Codeset.objects.get(codeen=codeen)
+        action_msg = ''
+        if direction < 0:
+            action_msg += '<h3 STYLE="color:green;">做空 ' + code.codezh + '--' + code.maincontract + '</h3>'
+            for index in ['macd', 'kdj', 'rsi', 'cci']:
+                if signal[index] < 0:
+                    action_msg += '<p style="color:green">' + index + ':' + str(signal[index]) + '</p>'
+                elif signal[index] > 0:
+                    action_msg += '<p style="color:red">' + index + ':' + str(signal[index]) + '</p>'
+        elif direction > 0:
+            action_msg += '<h3 STYLE="color:red;">做多 ' + code.codezh + '--' + code.maincontract + '</h3>'
+            for index in ['macd', 'kdj', 'rsi', 'cci']:
+                if signal[index] < 0:
+                    action_msg += '<p style="color:green">' + index + ':' + str(signal[index]) + '</p>'
+                elif signal[index] > 0:
+                    action_msg += '<p style="color:red">' + index + ':' + str(signal[index]) + '</p>'
+
+        sm("操作指令", action_msg, self.receiver, self.msg_cc)
