@@ -28,6 +28,7 @@ class WholeTraderSpider(scrapy.Spider):
         :param response:
         :type response:
         """
+        Signal.objects.update(trade=0)
         date = Position.objects.all().aggregate(Max('date'))['date__max']
         qs = Codeset.objects.filter(actived=True)
         df_signal = pd.DataFrame()

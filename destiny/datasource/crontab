@@ -1,0 +1,17 @@
+3 */12 * * 1-5 source /data/project/venv/bin/activate && cd /data/project/myfamily/mybot && scrapy crawl main_contract >> /data/project/myfamily/log/maincontract.log 2>&1
+3 */12 * * 1-5 source /data/project/venv/bin/activate && cd /data/project/destiny && scrapy crawl main_contract >> /data/project/destiny/log/maincontract.log 2>&1
+55 */6 * * 1-5 source /data/project/venv/bin/activate && cd /data/project/destiny && scrapy crawl quandl_data >> /data/project/destiny/log/quandl_data.log 2>&1
+5 */6 * * 1-5 source /data/project/venv/bin/activate && cd /data/project/destiny && scrapy crawl price_daily >> /data/project/destiny/log/price_daily.log 2>&1
+15 */6 * * 1-5 source /data/project/venv/bin/activate && cd /data/project/destiny && scrapy crawl price_daily_signal >> /data/project/destiny/log/price_daily_signal.log 2>&1
+*/5 9,14 * * 1-5 source /data/project/venv/bin/activate && cd /data/project/destiny/ && scrapy crawl action_5m >> /data/project/destiny/log/action_5m.log 2>&1
+0,5,10,15,30,35,40,45,50,55 10 * * 1-5 source /data/project/venv/bin/activate && cd /data/project/destiny/ && scrapy crawl action_5m >> /data/project/destiny/log/action_5m.log 2>&1
+0,5,10,15,20,25,30 11 * * 1-5 source /data/project/venv/bin/activate && cd /data/project/destiny/ && scrapy crawl action_5m >> /data/project/destiny/log/action_5m.log 2>&1
+30,35,40,45,50,55 13 * * 1-5 source /data/project/venv/bin/activate && cd /data/project/destiny/ && scrapy crawl action_5m >> /data/project/destiny/log/action_5m.log 2>&1
+40 7,12,17,18 * * 1-5  source /data/project/venv/bin/activate && cd /data/project/myfamily/mybot && scrapy crawl position >> /data/project/myfamily/myjob.log 2>&1
+45 7,12,17,18 * * 1-5  source /data/project/venv/bin/activate && cd /data/project/myfamily/mybot && scrapy crawl whole_trader >> /data/project/myfamily/myjob.log 2>&1
+
+
+40 7,12,18,19 * * 1-5  source /data/project/venv/bin/activate && cd /data/project/destiny && scrapy crawl position >> /data/project/destiny/log/position.log 2>&1
+45 7,12,18,19 * * 1-5  source /data/project/venv/bin/activate && cd /data/project/destiny && scrapy crawl whole_trader >> /data/project/destiny/log/whole_trader.log 2>&1
+50 7,12,18,19 * * 1-5  source /data/project/venv/bin/activate && cd /data/project/destiny && scrapy crawl ladon >> /data/project/destiny/log/ladon.log 2>&1
+55 7,12,18,19 * * 1-5  source /data/project/venv/bin/activate && cd /data/project/destiny && scrapy crawl action_daily >> /data/project/destiny/log/action_daily.log 2>&1

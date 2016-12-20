@@ -24,8 +24,37 @@ def remove_tags(text):
 
 
 class DestinyPipeline(object):
+    def __init__(self):
+        self.receiver = "13261871395@163.com"
+        self.msg_cc = ""
+        self.action_msg = ''
+        self.title = 'self.title'
+
     def process_item(self, item, spider):
-        return item
+        self.title = item['title']
+
+        direction = item['macd'] + item['rsi'] + item['kdj'] + item['cci']
+        print('direction', direction)
+        # print(item)
+        if direction < -10:
+            self.action_msg += '<h3 STYLE="color:green;">做空 ' + item['code'] + '</h3>'
+            for index in ['macd', 'kdj', 'rsi', 'cci']:
+                if item[index] < 0:
+                    self.action_msg += '<p style="color:green">' + index + ':' + str(item[index]) + '</p>'
+                elif item[index] > 0:
+                    self.action_msg += '<p style="color:red">' + index + ':' + str(item[index]) + '</p>'
+        elif direction > 10:
+            self.action_msg += '<h3 STYLE="color:red;">做多 ' + item['code'] + '</h3>'
+            for index in ['macd', 'kdj', 'rsi', 'cci']:
+                if item[index] < 0:
+                    self.action_msg += '<p style="color:green">' + index + ':' + str(item[index]) + '</p>'
+                elif item[index] > 0:
+                    self.action_msg += '<p style="color:red">' + index + ':' + str(item[index]) + '</p>'
+
+    def close_spider(self, spider):
+        print(self.action_msg)
+        if self.action_msg:
+            sm(self.title, self.action_msg, self.receiver, self.msg_cc)
 
 
 class PositionListPipeline(object):
@@ -43,7 +72,7 @@ class PositionListPipeline(object):
     def close_spider(self, spider):
         self.last_date = Position.objects.all().aggregate(Max('date'))['date__max']
         for name in self.name_list:
-           self.position_flag(name, self.last_date, spider.msg_cc)
+            self.position_flag(name, self.last_date, spider.msg_cc)
 
     def position_flag(self, name, date, cc=''):
         signal = ''
@@ -75,10 +104,3 @@ class PositionListPipeline(object):
                 signal += u'<p style="color:green;">交易强度 空: ' + str(p.strength_var) + '</p>'
         if signal:
             sm(name + "主力合约持仓指数 " + date.strftime('%Y-%m-%d'), signal, self.receiver, cc)
-
-
-
-
-
-
-

@@ -8,13 +8,16 @@
 import scrapy
 from scrapy.item import Item, Field
 from scrapy_djangoitem import DjangoItem
-from myapp.models import Quandlset, Proxyip
 
 
-class DestinyItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class DestinyItem(Item):
+    title = Field()
+    code = Field()
+    macd = Field()
+    kdj = Field()
+    cci = Field()
+    rsi = Field()
+
 
 class signal_investing_item(Item):
     code = Field()
