@@ -4,7 +4,6 @@ from django.db.models import Q
 from myapp.models import *
 from destiny.items import *
 from scrapy.utils.project import get_project_settings
-from destiny.sm2 import sm
 from datetime import datetime, time
 import pytz
 from destiny import indicator

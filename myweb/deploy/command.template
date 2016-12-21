@@ -1,0 +1,5 @@
+uwsgi --http :8000 --chdir /data/project/destiny/myweb --module myweb.wsgi --virtualenv /data/project/venv  --uid nginx --gid nginx
+
+uwsgi --socket /tmp/uwsgi.sock --wsgi-file test.py --chmod-socket=664 --uid nginx --gid nginx
+
+uwsgi --socket /tmp/uwsgi.sock --chdir /data/project/destiny/myweb --module myweb.wsgi --virtualenv /data/project/venv  --chmod-socket=664

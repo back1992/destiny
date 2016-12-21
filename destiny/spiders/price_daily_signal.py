@@ -23,7 +23,8 @@ class PriceDailySignalSpider(scrapy.Spider):
         super(scrapy.Spider, self).__init__(*args, **kwargs)
 
     def parse(self, response):
-        Signal.objects.all().delete()
+        # Signal.objects.all().delete()
+        Signal.objects.update(macd=0, kdj=0, rsi=0, cci=0)
         codes = Codeset.objects.filter(actived=True)
         # codes = Codeset.objects.filter(codeen='A')
         for code in codes:

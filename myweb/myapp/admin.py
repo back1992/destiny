@@ -131,6 +131,19 @@ class PriceFreqAdmin(admin.ModelAdmin):
 admin.site.register(Pricefreq, PriceFreqAdmin)
 
 
+class PriceGlobeAdmin(admin.ModelAdmin):
+    # list_display = ['code', 'pub_date', 'open', 'high', 'low', 'close', 'volume']
+    list_display = [field.name for field in Priceglobe._meta.fields if
+                    field.name != "id" and field.name != "pub_time" and field.name != "code"]
+    list_display.append('time_seconds', )
+    list_filter = (
+        'code',
+    )
+
+
+admin.site.register(Priceglobe, PriceGlobeAdmin)
+
+
 class PositionAdmin(admin.ModelAdmin):
     list_display = ['code', 'date', 'name', 'tradeno', 'tradeposition', 'tradevar', 'buyno', 'buyposition', 'buyvar',
                     'sellno', 'sellposition', 'sellvar']

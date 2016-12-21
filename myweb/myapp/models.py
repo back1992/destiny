@@ -169,6 +169,32 @@ class Pricefreq(models.Model):
         return str(self.code.codeen)
 
 
+class Priceglobe(models.Model):
+    code = models.CharField(max_length=10, null=True)
+    codezh = models.CharField(max_length=10, null=True)
+    new = models.FloatField(null=True)
+    wave = models.FloatField(null=True)
+    buy = models.FloatField(null=True)
+    sell = models.FloatField(null=True)
+    high = models.FloatField(null=True)
+    low = models.FloatField(null=True)
+    pub_time = models.TimeField(null=True)
+    settle = models.FloatField(null=True)
+    open = models.FloatField(null=True)
+    position = models.IntegerField(null=True)
+    pub_date = models.DateField(null=True)
+
+    def time_seconds(self):
+        return self.pub_time.strftime("%H:%M:%S")
+
+    time_seconds.admin_order_field = 'timefield'
+    time_seconds.short_description = 'Precise Time'
+    objects = DataFrameManager()
+
+    def __str__(self):
+        return str(self.code)
+
+
 class Ladon(models.Model):
     code = models.ForeignKey("Codeset")
     name = models.CharField(max_length=50)

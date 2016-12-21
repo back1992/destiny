@@ -29,12 +29,13 @@ class ActionDailySpider(scrapy.Spider):
         Signal.objects.update(action=0)
         df = Signal.objects.all().to_dataframe()
         df['signal'] = df['macd'] + df['kdj'] + df['rsi'] + df['cci']
-        df = df[df['position'] * df['trade'] > 0].sort_values(by=['trade'], ascending=[-1])
+        # df = df[df['position'] * df['trade'] > 0].sort_values(by=['trade'], ascending=[-1])
+        df = df.sort_values(by=['trade'], ascending=[-1])
         print(df)
         for index, row in df.iterrows():
             code = Codeset.objects.get(codeen=row['code'])
             action_signal, created = Signal.objects.update_or_create(code=code)
-            if row['trade'] <= 0 and row['signal'] < 0:
+            if row['trade'] <= 0 and row['signal'] < -5:
                 action_signal.action = -1
                 action += '<h3 STYLE="color:green;">做空 ' + code.codezh + '--' + code.maincontract + '</h3>'
                 action += '<p style="color:green">强度：' + str(row['trade']) + ' 建仓指数： ' + str(row['position']) + '</p>'
@@ -43,7 +44,7 @@ class ActionDailySpider(scrapy.Spider):
                         action += '<p style="color:green">' + index + ':' + str(row[index]) + '</p>'
                     elif row[index] > 0:
                         action += '<p style="color:red">' + index + ':' + str(row[index]) + '</p>'
-            elif row['trade'] > 0 and row['signal'] > 0:
+            elif row['trade'] > 0 and row['signal'] > 5:
                 action_signal.action = 1
                 action += '<h3 STYLE="color:red;">做多 ' + code.codezh + '--' + code.maincontract + '</h3>'
                 action += '<p style="color:red">强度：' + str(row['trade']) + ' 建仓指数： ' + str(row['position']) + '</p>'
