@@ -8,8 +8,8 @@ from myapp.models import Codeset, Position, Signal
 from destiny.sm2 import sm
 
 
-class WholeTraderSpider(scrapy.Spider):
-    name = "whole_trader"
+class WholeTraderBetaSpider(scrapy.Spider):
+    name = "whole_trader_beta"
     allowed_domains = ["baidu.com"]
     start_urls = (
         'http://www.baidu.com/',
@@ -18,7 +18,7 @@ class WholeTraderSpider(scrapy.Spider):
     def __init__(self, msg_cc='', *args, **kwargs):
         self.msg_cc = ""
         self.receiver = '13261871395@163.com'
-        self.track_list = [2, 4, 8, 16]
+        # self.track_list = [2, 4, 8, 16]
 
         super(scrapy.Spider, self).__init__(*args, **kwargs)
 
@@ -38,12 +38,7 @@ class WholeTraderSpider(scrapy.Spider):
             if df.empty:
                 print(code, date, 'error')
             else:
-                df['hold_interest'] = df['buyposition'] - df['sellposition']
-                df['hold_var'] = df['buyvar'] - df['sellvar']
-                df['volume_var'] = df['buyvar'] + df['sellvar']
-                df['hold_total'] = df['buyposition'] + df['sellposition']
-                df['no_total'] = df['tradeno'] + df['buyno'] + df['sellno']
-                df = df.sort_values(by=['no_total'], ascending=[1])
+
                 signal = self.get_signal_df(df)
                 signal['code'] = code.codezh
                 signal['contract'] = code.maincontract
@@ -53,26 +48,32 @@ class WholeTraderSpider(scrapy.Spider):
 
         # df_signal_buy = df_signal[df_signal['vi'] > 0].sort_values(by=['vi'], ascending=[0])
         # df_signal_sell = df_signal[df_signal['vi'] < 0].sort_values(by=['vi'], ascending=[1])
-        df_signal_buy = df_signal[df_signal['var'] > 0][df_signal['interest'] > 0][df_signal['volume_var'] > 0].sort_values(by=['var'], ascending=[0])
-        df_signal_sell = df_signal[df_signal['var'] < 0][df_signal['interest'] < 0][df_signal['volume_var'] > 0].sort_values(by=['var'], ascending=[1])
+        df_signal_buy = df_signal[df_signal['indicator'] > 0].sort_values(by=['indicator'], ascending=[0])
+        df_signal_sell = df_signal[df_signal['indicator'] < 0].sort_values(by=['indicator'], ascending=[1])
         sm("new 今日做多合约品种 " + date.strftime('%Y-%m-%d'), self.send_signal_buy(df_signal_buy), self.receiver, self.msg_cc)
         sm("new 今日做空合约品种 " + date.strftime('%Y-%m-%d'), self.send_signal_sell(df_signal_sell), self.receiver,
            self.msg_cc)
 
     def get_signal_df(self, df):
-        strength_interest = 0
-        strength_var = 0
-        volume_var = 0
-        for num in self.track_list:
-            hold_total_sum = df[:num]['hold_total'].sum()
-            strength_interest += df[:num]['hold_interest'].sum() * 100 / hold_total_sum
-            strength_var += df[:num]['hold_var'].sum() * 1000 / hold_total_sum
-            volume_var += df[:num]['volume_var'].sum()
+        df['hold_interest'] = df['buyposition'] - df['sellposition']
+        df['hold_var'] = df['buyvar'] - df['sellvar']
+        df['volume_var'] = df['buyvar'] + df['sellvar']
+        df['hold_total'] = df['buyposition'] + df['sellposition']
+        df['no_total'] = df['tradeno'] + df['buyno'] + df['sellno']
+        # select top 20
+        num = 20
+        df = df.sort_values(by=['no_total'], ascending=[1])[:num]
+        # for num in self.track_list:
+        hold_total = df['hold_total'].sum()
+        interest = df['hold_interest'].sum()
+        hold_var = df['hold_var'].sum()
+        volume_var = df['volume_var'].sum()
+        indicator = interest+hold_var/hold_total
         name_list = ''
         for index, row in df[:2].iterrows():
             name_list += row['name'] + ' t' + str(row['tradeno']) + ' b:' + str(row['buyno']) + ' s:' + str(
                 row['sellno'])
-        result = {'interest': strength_interest, 'var': strength_var, 'name_list': name_list, 'volume_var': volume_var}
+        result = {'indicator': indicator, 'name_list': name_list, 'volume_var': volume_var}
         return result
 
     def send_signal_buy(self, df):
@@ -84,9 +85,9 @@ class WholeTraderSpider(scrapy.Spider):
                 signal += '<h3>做多 ' + row['code'] + '-' + row['contract'] + '</h3>'
             signal += '<p>' + row['name_list'] + '</p>'
             # signal += u'<p>持仓强度: ' + str(row['interest']) + '</p>'
-            signal += u'<h4>交易强度: ' + str(int(row['var'])) + '</h4>'
+            signal += u'<h4>交易强度: ' + str(int(row['indicator'])) + '</h4>'
             action_signal, created = Signal.objects.update_or_create(code=Codeset.objects.get(codezh=row['code']))
-            action_signal.trade = row['var']
+            action_signal.trade = row['indicator']
             action_signal.save()
         return signal
 
@@ -99,9 +100,9 @@ class WholeTraderSpider(scrapy.Spider):
                 signal += '<h3>做空 ' + row['code'] + '-' + row['contract'] + '</h3>'
             signal += '<p>' + row['name_list'] + '</p>'
             # signal += u'<p>持仓强度: ' + str(row['interest']) + '</p>'
-            signal += u'<h4>交易强度: ' + str(int(row['var'])) + '</h4>'
+            signal += u'<h4>交易强度: ' + str(int(row['indicator'])) + '</h4>'
 
             action_signal, created = Signal.objects.update_or_create(code=Codeset.objects.get(codezh=row['code']))
-            action_signal.trade = row['var']
+            action_signal.trade = row['indicator']
             action_signal.save()
         return signal

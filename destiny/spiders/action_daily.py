@@ -35,8 +35,9 @@ class ActionDailySpider(scrapy.Spider):
         for index, row in df.iterrows():
             code = Codeset.objects.get(codeen=row['code'])
             action_signal, created = Signal.objects.update_or_create(code=code)
-            if row['trade'] <= 0 and row['signal'] < -5:
+            if row['trade'] < 0 and row['signal'] < 0 and row['position'] < 0:
                 action_signal.action = -1
+                action_signal.save()
                 action += '<h3 STYLE="color:green;">做空 ' + code.codezh + '--' + code.maincontract + '</h3>'
                 action += '<p style="color:green">强度：' + str(row['trade']) + ' 建仓指数： ' + str(row['position']) + '</p>'
                 for index in ['macd', 'kdj', 'rsi', 'cci']:
@@ -44,8 +45,9 @@ class ActionDailySpider(scrapy.Spider):
                         action += '<p style="color:green">' + index + ':' + str(row[index]) + '</p>'
                     elif row[index] > 0:
                         action += '<p style="color:red">' + index + ':' + str(row[index]) + '</p>'
-            elif row['trade'] > 0 and row['signal'] > 5:
+            elif row['trade'] > 0 and row['signal'] > 0 and row['position'] > 0:
                 action_signal.action = 1
+                action_signal.save()
                 action += '<h3 STYLE="color:red;">做多 ' + code.codezh + '--' + code.maincontract + '</h3>'
                 action += '<p style="color:red">强度：' + str(row['trade']) + ' 建仓指数： ' + str(row['position']) + '</p>'
                 for index in ['macd', 'kdj', 'rsi', 'cci']:

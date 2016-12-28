@@ -13,7 +13,11 @@ tz = pytz.timezone('Asia/Shanghai')
 settings = get_project_settings()
 
 df_codes = Signal.objects.filter(~Q(action=0)).to_dataframe(fieldnames=['action'], index='code')
-print(df_codes)
+
+
+# print(df_codes)
+
+
 # qs = Codeset.objects.filter(codeen__in=df_codes.index)
 # qs = Codeset.objects.filter(nighttrade=True, codeen__in=df_codes.index)
 # qs = Codeset.objects.filter(nighttrade=True).filter(codeen__in=df_codes.index)
@@ -41,11 +45,14 @@ class Action5MSpider(scrapy.Spider):
     # else:
     #     # qs = Codeset.objects.filter(actived=True)
     #     qs = Codeset.objects.filter(nighttrade=True, codeen__in=df_codes.index)
-    qs = Codeset.objects.filter(codeen__in=df_codes.index)
+    haihai = ['V', 'TA', 'J', 'I', 'SR', 'BU']
+    # qs = Codeset.objects.filter(codeen__in=df_codes.index)
+    qs = Codeset.objects.filter(codeen__in=haihai)
+
     if qs:
         start_urls = (
             'http://stock2.finance.sina.com.cn/futures/api/json.php/%s%s?symbol=%s' % (
-                "IndexService.getInnerFuturesMiniKLine", '5m',
+                "IndexService.getInnerFuturesMiniKLine", '30m',
                 code.maincontract)
             for code in qs)
     else:

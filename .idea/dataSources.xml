@@ -7,5 +7,11 @@
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/myweb/dev.db</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="destiny@localhost" uuid="a7f23cb7-7022-4157-91b2-8496aff70a04">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:5432/destiny</jdbc-url>
+    </data-source>
   </component>
 </project>

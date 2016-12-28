@@ -3,3 +3,15 @@ uwsgi --http :8000 --chdir /data/project/destiny/myweb --module myweb.wsgi --vir
 uwsgi --socket /tmp/uwsgi.sock --wsgi-file test.py --chmod-socket=664 --uid nginx --gid nginx
 
 uwsgi --socket /tmp/uwsgi.sock --chdir /data/project/destiny/myweb --module myweb.wsgi --virtualenv /data/project/venv  --chmod-socket=664
+
+
+
+/data/project/venv/bin/gunicorn  -b 0.0.0.0:8000  --workers=3 destiny.wsgi:application
+
+uwsgi --socket 127.0.0.1:3031 --chdir /data/project/destiny/myweb --wsgi-file myweb/wsgi.py --master --processes 4 --threads 2 --stats 127.0.0.1:9191
+
+.wsgi --chmod-socket=664 myweb]# uwsgi --http-socket myweb.sock --module myweb.
+
+
+/data/project/venv/bin/uwsgi --emperor /etc/uwsgi/vassals --uid nginx --gid nginx --daemonize /data/project/destiny/myweb/logs/uwsgi-emperor.log
+

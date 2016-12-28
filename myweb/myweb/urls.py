@@ -7,13 +7,14 @@ from django.views.i18n import set_language
 
 from mezzanine.core.views import direct_to_template
 from mezzanine.conf import settings
-
+from django.conf.urls.static import static
 
 admin.autodiscover()
 
 # Add the urlpatterns for any custom Django applications here.
 # You can also change the ``home`` view to add your own functionality
 # to the project's homepage.
+
 
 urlpatterns = i18n_patterns(
     # Change the admin prefix here to use an alternate URL for the
@@ -25,6 +26,7 @@ if settings.USE_MODELTRANSLATION:
     urlpatterns += [
         url('^i18n/$', set_language, name='set_language'),
     ]
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 urlpatterns += [
     # We don't want to presume how your homepage works, so here are a

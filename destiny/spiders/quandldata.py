@@ -35,7 +35,7 @@ class QuandldataSpider(scrapy.Spider):
 
     def parse(self, response):
         qs = Quandlset.objects.filter(actived=True)
-        for p in qs[:10]:
+        for p in qs:
             symbol = p.quandlcode + "1"
             # p.actived = True
             # p.save()
@@ -46,12 +46,15 @@ class QuandldataSpider(scrapy.Spider):
                 continue
             if 'Last' in df.columns:
                 df = df.rename(
+                    # columns={'Open': 'open', 'High': 'high', 'Low': 'low', 'Volume': 'volume', 'Last': 'close'})
                     columns={'Open': 'open', 'High': 'high', 'Low': 'low', 'Last': 'close'})
             elif 'Close' in df.columns:
                 df = df.rename(
+                    # columns={'Open': 'open', 'High': 'high', 'Low': 'low', 'Volume': 'volume', 'Close': 'close'})
                     columns={'Open': 'open', 'High': 'high', 'Low': 'low', 'Close': 'close'})
             elif 'Settle' in df.columns:
                 df = df.rename(
+                    # columns={'Open': 'open', 'High': 'high', 'Low': 'low', 'Volume': 'volume', 'Settle': 'close'})
                     columns={'Open': 'open', 'High': 'high', 'Low': 'low', 'Settle': 'close'})
             else:
                 # p.actived = False
@@ -59,8 +62,8 @@ class QuandldataSpider(scrapy.Spider):
                 continue
             df[df['volume'] == 0] = numpy.nan
             df = df.dropna()
-            print(df[-5:])
-            if not df.empty:
+
+            if not df.empty and df.shape[0] > 50:
                 item = DestinyItem()
                 item['title'] = 'sleepless money'
                 item['code'] = p.namezh + ' ' + p.exchange + ' ' + p.name

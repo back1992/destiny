@@ -7,6 +7,7 @@ def get_macd(df):
     dif, dea, macd = talib.MACD(df['close'].values, fastperiod=12, slowperiod=26,
                                 signalperiod=9)
 
+    # print(df['close'])
     # print(dif, dea, macd)
     #  1. DIFF、DEA均为正，DIFF向上突破DEA，买入信号。 2. DIFF、DEA均为负，DIFF向下跌破DEA，卖出信号。
     # DIF上穿DEA

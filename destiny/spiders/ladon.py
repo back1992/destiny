@@ -13,7 +13,6 @@ class LadonSpider(scrapy.Spider):
 
     def parse(self, response):
         Signal.objects.update(position=0)
-        Ladon.objects.all().delete()
         qs = Codeset.objects.filter(actived=True)
         for code in qs:
             date = Position.objects.all().aggregate(Max('date'))['date__max']

@@ -1,0 +1,8 @@
+@daily * * * 1-5 source /home/ubuntu/PycharmProjects/.venv/bin/activate && cd /home/ubuntu/PycharmProjects/destiny && scrapy crawl main_contract >> /log/maincontract.log 2>&1
+30 */8 * * 1-5 source /home/ubuntu/PycharmProjects/.venv/bin/activate && cd  && scrapy crawl quandl_data >> /log/quandl_data.log 2>&1
+5 */6 * * 1-5 source /home/ubuntu/PycharmProjects/.venv/bin/activate && cd  && scrapy crawl price_daily >> /log/price_daily.log 2>&1
+15 */6 * * 1-5 source /home/ubuntu/PycharmProjects/.venv/bin/activate && cd  && scrapy crawl price_daily_signal >> /log/price_daily_signal.log 2>&1
+25 7,12,18,19 * * 1-5  source /home/ubuntu/PycharmProjects/.venv/bin/activate && cd  && scrapy crawl position >> /log/position.log 2>&1
+35 7,12,18,19 * * 1-5  source /home/ubuntu/PycharmProjects/.venv/bin/activate && cd  && scrapy crawl whole_trader >> /log/whole_trader.log 2>&1
+45 7,12,18,19 * * 1-5  source /home/ubuntu/PycharmProjects/.venv/bin/activate && cd  && scrapy crawl ladon >> /log/ladon.log 2>&1
+55 7,12,18,19 * * 1-5  source /home/ubuntu/PycharmProjects/.venv/bin/activate && cd  && scrapy crawl action_daily >> /log/action_daily.log 2>&1
